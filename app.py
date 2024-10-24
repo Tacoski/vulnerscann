@@ -674,11 +674,13 @@ async def process_url(session, url):
 
 def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, scan_duration):
     try:
-        downloads_path = os.path.join(os.path.expanduser("~\Downloads"))
-        report_path = os.path.join(downloads_path, 'scan_report.pdf')
+        # Use the `/tmp` directory for temporary storage on Render
+        tmp_path = '/tmp'
+        report_path = os.path.join(tmp_path, 'scan_report.pdf')
 
-        # Log the path to ensure it's correct
-        print(f"Report path: {report_path}")
+        # Ensure the temporary directory exists
+        if not os.path.exists(tmp_path):
+            os.makedirs(tmp_path)
 
         pdf = PDFReport()
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -727,7 +729,7 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
         # Generate and Insert Pie Chart
         passed = sum(1 for result in results if "passed" in result.lower())
         failed = len(results) - passed
-        chart_path = os.path.join(downloads_path, 'chart.png')
+        chart_path = os.path.join(tmp_path, 'chart.png')
         labels = ['Passed', 'Failed']
         sizes = [passed, failed]
         colors = ['#4CAF50', '#F44336']
@@ -943,7 +945,8 @@ async def index():
 
 @app.route('/Downloads/<filename>')
 async def download_file(filename):
-    downloads_path = os.path.join(os.path.expanduser("~\Downloads"))
+    # Use the temporary `/tmp` directory for downloads
+    downloads_path = '/tmp'
     return await send_from_directory(downloads_path, filename)
 
 if __name__ == '__main__':
