@@ -697,8 +697,10 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
         pdf.ln(20)
 
           # Add the logo (adjust x, y, and w as needed)
-        logo_path = r"C:\Users\User\OneDrive\Desktop\webscanner 3\logo.png"  # Full path with raw string to handle spaces and backslashes
-        pdf.image(logo_path, x=10, y=8, w=30)  # Adjust 'x', 'y', and 'w' as needed
+          # Update the logo path to use a relative path
+        logo_path = os.path.join(os.path.dirname(__file__), 'static', 'logo.png')
+        if os.path.exists(logo_path):
+            pdf.image(logo_path, x=10, y=8, w=30)
 
 
         # Format scan duration (remove milliseconds)
