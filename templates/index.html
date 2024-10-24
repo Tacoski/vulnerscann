@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Vulnerability Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>WEB VULNERABILITY SCANNER</h1>
+        <form id="scanForm">
+            <label for="url">Enter URL:</label>
+            <input type="url" id="url" name="url" placeholder="https://example.com" required>
+            <button type="submit">Scan</button>
+        </form>
+        <div id="resultMessage" class="result-message">
+            <p>Scan completed successfully!</p>
+            <button id="printReportButton">Print Report</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('scanForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            fetch('/', {
+                method: 'POST',
+                body: new FormData(event.target)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.report) {
+                    document.getElementById('resultMessage').style.display = 'block';
+                    document.getElementById('printReportButton').onclick = () => {
+                        window.location.href = `/Downloads/${data.report}`;
+                    };
+                } else {
+                    alert('Error generating report');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
