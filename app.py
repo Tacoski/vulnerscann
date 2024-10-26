@@ -857,8 +857,7 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
                 sections["XSS Vulnerabilities"].append(result)
             elif "sql injection" in result_lower:  # SQL Injection check moved to the last
                 sections["SQL Injection Vulnerabilities"].append(result)
-            else:
-                sections["Unknown or Unclassified Issues"].append(result)  # Optional: Add unclassified results to a separate section
+                
 
         # Check if LFI, XSS and SQLI vulnerabilities are present
         lfi_vulnerable = any("Possible LFI vulnerability" in result for result in sections["LFI Vulnerabilities"])
