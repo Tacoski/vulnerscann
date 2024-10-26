@@ -610,6 +610,41 @@ async def check_stored_xss(session, url, xss_payloads, retries=3):
     return results  # Return results even if empty
 
 
+async def check_sql_injection(session, url):
+    results = []
+    sql_payloads = [
+        "' OR '1'='1", 
+        "' OR '1'='1' -- ", 
+        "' OR 1=1 -- ", 
+        "' OR 'a'='a", 
+        "' OR 'a'='a' -- ", 
+        "' OR 1=1#", 
+        "' AND 1=1", 
+        "' AND 1=2",
+        "' UNION SELECT NULL, NULL, NULL -- ",
+        "' UNION SELECT username, password FROM users -- ",
+        "' OR 1=1 LIMIT 1 -- ",
+        "' OR 1=1#",
+        "admin' --",
+        "' OR EXISTS(SELECT 1 FROM users) --"
+    ]
+
+    for payload in sql_payloads:
+        try:
+            # Test SQL payload in GET request
+            injection_url = f"{url}?id={payload}"
+            async with session.get(injection_url) as response:
+                response_text = await response.text()
+                if "syntax error" in response_text.lower() or "mysql" in response_text.lower() or "sql" in response_text.lower():
+                    results.append(f"Potential SQL Injection vulnerability detected with payload: {payload}")
+                else:
+                    results.append(f"SQL Injection check passed with payload: {payload}")
+        except Exception as e:
+            results.append(f"Error checking SQL Injection with payload: {payload} - {str(e)}")
+    
+    return results
+
+
 async def scan_url(session, url):
     """Scan a single URL with various security checks."""
     results = []
@@ -624,9 +659,11 @@ async def scan_url(session, url):
     results.extend(await check_cookie_flags(session, url))
     results.extend(await check_unsafe_csp(session, url))
     results.extend(await check_advanced_lfi_vulnerabilities(session, url))
-    results.extend(await run_xss_tests(session, url, []))  # You can pass xss_payloads if needed
+    results.extend(await run_xss_tests(session, url, []))
+    results.extend(await check_sql_injection(session, url))  # SQL Injection check
     
     return results
+
 
 # Finally, define scan_with_async to handle multiple URLs
 async def scan_with_async(crawled_urls):
@@ -657,19 +694,21 @@ class PDFReport(FPDF):
 
 async def process_url(session, url):
     results = []
-    results.extend(await check_missing_headers(session, url))
-    results.extend(check_secure_communication(url))
-    results.extend(check_technologies(url))
-    results.extend(await check_server_vulnerabilities(session, url))
-    results.extend(await check_client_access_policies(session, url))
-    results.extend(await check_untrusted_certificates(session, url))
-    results.extend(await check_http_methods(session, url))
-    results.extend(await check_directory_listing(session, url))
-    results.extend(await check_cookie_flags(session, url))
-    results.extend(await check_unsafe_csp(session, url))
-    results.extend(await check_advanced_lfi_vulnerabilities(session, url))
-    results.extend(await run_xss_tests(session, url))
+    results.extend(await check_missing_headers(session, url))      # HTTP header check
+    results.extend(check_secure_communication(url))                # HTTPS vs HTTP check
+    results.extend(check_technologies(url))                        # Technology analysis
+    results.extend(await check_server_vulnerabilities(session, url))  # Server vulnerability analysis
+    results.extend(await check_client_access_policies(session, url))  # Client access policies check
+    results.extend(await check_untrusted_certificates(session, url))  # SSL certificate verification
+    results.extend(await check_http_methods(session, url))         # HTTP methods check
+    results.extend(await check_directory_listing(session, url))    # Directory listing check
+    results.extend(await check_cookie_flags(session, url))         # Cookie security flags check
+    results.extend(await check_unsafe_csp(session, url))           # Content Security Policy check
+    results.extend(await check_advanced_lfi_vulnerabilities(session, url))  # LFI vulnerability check
+    results.extend(await run_xss_tests(session, url))              # XSS vulnerability check
+    results.extend(await check_sql_injection(session, url))        # SQL Injection vulnerability check (added)
     return results
+
 
 
 def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, scan_duration):
@@ -763,7 +802,8 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
             "Cookie Flags",
             "Unsafe CSP",
             "LFI Vulnerabilities",
-            "XSS Vulnerabilities"
+            "XSS Vulnerabilities",
+            "SQL Injection Vulnerabilities"
         ]
 
         # Add Table of Contents Entries
@@ -784,11 +824,13 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
             "Cookie Flags": [],
             "Unsafe CSP": [],
             "LFI Vulnerabilities": [],
-            "XSS Vulnerabilities": []
+            "XSS Vulnerabilities": [],
+            "SQL Injection Vulnerabilities": []
         }
 
         # Populate sections with relevant results
         for result in results:
+            result_lower = result.lower()
             if "Missing HTTP header" in result:
                 sections["Missing HTTP Headers"].append(result)
             elif "Insecure communication" in result or "Secure communication" in result:
@@ -811,12 +853,18 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
                 sections["Unsafe CSP"].append(result)
             elif "LFI" in result:
                 sections["LFI Vulnerabilities"].append(result)
-            else:
+            elif "xss" in result_lower or "cross-site scripting" in result_lower:
                 sections["XSS Vulnerabilities"].append(result)
+            elif "sql injection" in result_lower:  # SQL Injection check moved to the last
+                sections["SQL Injection Vulnerabilities"].append(result)
+            else:
+                sections["Unknown or Unclassified Issues"].append(result)  # Optional: Add unclassified results to a separate section
 
-        # Check if LFI or XSS vulnerabilities are present
+        # Check if LFI, XSS and SQLI vulnerabilities are present
         lfi_vulnerable = any("Possible LFI vulnerability" in result for result in sections["LFI Vulnerabilities"])
         xss_vulnerable = any("Possible XSS vulnerability" in result for result in sections["XSS Vulnerabilities"])
+        sql_injection_vulnerable = any("Possible SQLi vulnerability" in result for result in sections["SQL Injection Vulnerabilities"])
+
 
         # Mitigation plans for each section
         mitigation_plans = {
@@ -831,7 +879,8 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
             "Cookie Flags": "Set the Secure and HttpOnly flags on cookies to enhance security. Secure cookies should only be sent over HTTPS, and HttpOnly cookies are inaccessible via JavaScript.",
             "Unsafe CSP": "Configure Content-Security-Policy to avoid the use of 'unsafe-inline' and 'unsafe-eval'. Specify the sources of scripts, styles, and other resources explicitly.",
             "LFI Vulnerabilities": "Sanitize and validate all user inputs to prevent Local File Inclusion attacks. Avoid directly using user-supplied input in file paths.",
-            "XSS Vulnerabilities": "Sanitize and encode user input to prevent Cross-Site Scripting (XSS) attacks. Implement Content Security Policy (CSP) to further protect against XSS."
+            "XSS Vulnerabilities": "Sanitize and encode user input to prevent Cross-Site Scripting (XSS) attacks. Implement Content Security Policy (CSP) to further protect against XSS.",
+            "SQL Injection Vulnerabilities": "Use prepared statements (parameterized queries) to prevent SQL Injection attacks.Avoid directly concatenating user input in SQL queries. Implement input validation and escape user input properly."
         }
 
         # Add sections and results with mitigation plans and vulnerability status for LFI and XSS
@@ -859,6 +908,12 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
             if section == "XSS Vulnerabilities":
                 pdf.set_font("Arial", 'B', 12)
                 vulnerability_status = "Vulnerable" if xss_vulnerable else "Not Vulnerable"
+                pdf.cell(200, 10, txt=f"Vulnerability Status: {vulnerability_status}", ln=True, align='L')
+                pdf.ln(5)
+            
+            if section == "SQL Injection Vulnerabilities":
+                pdf.set_font("Arial", 'B', 12)
+                vulnerability_status = "Vulnerable" if sql_injection_vulnerable else "Not Vulnerable"
                 pdf.cell(200, 10, txt=f"Vulnerability Status: {vulnerability_status}", ln=True, align='L')
                 pdf.ln(5)
 
