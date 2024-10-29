@@ -1,3 +1,4 @@
+/* Global Styles */
 body {
     font-family: 'Courier New', Courier, monospace;
     background-color: #121212; /* Dark background */
@@ -9,30 +10,34 @@ body {
     margin: 0;
 }
 
+/* Container Styles */
 .container {
     text-align: center;
     border: 2px solid #00ff00;
     padding: 20px;
     border-radius: 10px;
-    background-color: #1e1e1e;
+    background-color: #1e1e1e; /* Slightly lighter dark background */
     width: 400px;
 }
 
+/* Header Styles */
 h1 {
     font-size: 24px;
     margin-bottom: 20px;
 }
 
+/* Input Field Styles */
 input[type="url"] {
     width: calc(100% - 100px);
     padding: 10px;
     margin-right: -4px;
     border: 2px solid #00ff00;
     border-radius: 4px 0 0 4px;
-    background-color: #2b2b2b;
+    background-color: #2b2b2b; /* Slightly lighter than container background */
     color: #00ff00;
 }
 
+/* Button Styles */
 button {
     padding: 10px 20px;
     border: 2px solid #00ff00;
@@ -40,6 +45,7 @@ button {
     background-color: #2b2b2b;
     color: #00ff00;
     cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 button:hover {
@@ -47,6 +53,7 @@ button:hover {
     color: #121212;
 }
 
+/* Result Message */
 .result-message {
     margin-top: 20px;
     display: none;
@@ -56,3 +63,26 @@ button:hover {
     margin: 10px 0;
 }
 
+/* Loading Container Styles */
+.loading-container {
+    margin-top: 20px;
+    display: none; /* Hidden by default */
+    text-align: center;
+}
+
+/* Progress Bar Styles */
+.progress-bar {
+    width: 100%;
+    background-color: #2b2b2b; /* Match the button background */
+    border-radius: 25px;
+    overflow: hidden;
+    border: 2px solid #00ff00;
+    margin-top: 10px;
+}
+
+.progress {
+    width: 0%;
+    height: 20px;
+    background-color: #00ff00;
+    transition: width 0.3s; /* Smooth transition for progress changes */
+}

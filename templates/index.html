@@ -5,6 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Vulnerability Scanner</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Full CSS Styles */
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #121212; /* Dark background */
+            color: #00ff00; /* Bright green text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #1e1e1e;
+            width: 400px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        input[type="url"] {
+            width: calc(100% - 100px);
+            padding: 10px;
+            margin-right: -4px;
+            border: 2px solid #00ff00;
+            border-radius: 4px 0 0 4px;
+            background-color: #2b2b2b;
+            color: #00ff00;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: 2px solid #00ff00;
+            border-radius: 0 4px 4px 0;
+            background-color: #2b2b2b;
+            color: #00ff00;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        button:hover {
+            background-color: #00ff00;
+            color: #121212;
+        }
+
+        .result-message {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-message p {
+            margin: 10px 0;
+        }
+
+        /* Loading Container Styles */
+        .loading-container {
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+            text-align: center;
+        }
+
+        /* Progress Bar Styles */
+        .progress-bar {
+            width: 100%;
+            background-color: #2b2b2b; /* Match the button background */
+            border-radius: 25px;
+            overflow: hidden;
+            border: 2px solid #00ff00;
+            margin-top: 10px;
+        }
+
+        .progress {
+            width: 0%;
+            height: 20px;
+            background-color: #00ff00;
+            transition: width 0.3s;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,6 +99,16 @@
             <input type="url" id="url" name="url" placeholder="https://example.com" required>
             <button type="submit">Scan</button>
         </form>
+
+        <!-- Loading Indicator -->
+        <div id="loadingContainer" class="loading-container">
+            <p>Scanning, please wait...</p>
+            <div class="progress-bar">
+                <div id="progressBar" class="progress"></div>
+            </div>
+        </div>
+
+        <!-- Result Message -->
         <div id="resultMessage" class="result-message">
             <p>Scan completed successfully!</p>
             <button id="printReportButton">Print Report</button>
@@ -23,20 +118,52 @@
     <script>
         document.getElementById('scanForm').addEventListener('submit', function(event) {
             event.preventDefault();
+
+            // Show loading indicator
+            const loadingContainer = document.getElementById('loadingContainer');
+            const progressBar = document.getElementById('progressBar');
+            loadingContainer.style.display = 'block';
+
+            // Reset progress bar width
+            progressBar.style.width = '0%';
+
+            // Simulate progress update during scanning
+            let progress = 0;
+            const updateProgress = setInterval(() => {
+                if (progress < 90) { // Simulate progress (up to 90%)
+                    progress += 10;
+                    progressBar.style.width = progress + '%';
+                }
+            }, 500); // Increase progress every 0.5 seconds
+
+            // Send the scan request
             fetch('/', {
                 method: 'POST',
                 body: new FormData(event.target)
             })
             .then(response => response.json())
             .then(data => {
+                // Stop progress simulation and fill the progress bar
+                clearInterval(updateProgress);
+                progressBar.style.width = '100%';
+
                 if (data.report) {
+                    // Hide loading indicator and show the result
+                    loadingContainer.style.display = 'none';
                     document.getElementById('resultMessage').style.display = 'block';
+
+                    // Set the report download action
                     document.getElementById('printReportButton').onclick = () => {
                         window.location.href = `/Downloads/${data.report}`;
                     };
                 } else {
                     alert('Error generating report');
+                    loadingContainer.style.display = 'none';
                 }
+            })
+            .catch(() => {
+                alert('Error during scanning');
+                loadingContainer.style.display = 'none';
             });
         });
     </script>
