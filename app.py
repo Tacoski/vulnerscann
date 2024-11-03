@@ -726,6 +726,14 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
 
         # Cover Page
         pdf.add_page()
+        logo_path = os.path.join(os.path.dirname(__file__), 'static', 'logo.png')
+        if os.path.exists(logo_path):
+            pdf.image(logo_path, x=90, y=10, w=40)  # Center the logo at the top
+
+    
+        pdf.ln(25)  
+
+        # Add the title
         pdf.set_font("Arial", 'B', 24)
         pdf.cell(200, 20, txt="Web Vulnerability Scan Report", ln=True, align='C')
         pdf.ln(10)
