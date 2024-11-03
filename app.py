@@ -731,9 +731,10 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
             pdf.image(logo_path, x=90, y=10, w=40)  # Center the logo at the top
 
     
-        pdf.ln(25)  
+        pdf.ln(25) #spacing
 
         # Add the title
+        #tajuk report
         pdf.set_font("Arial", 'B', 24)
         pdf.cell(200, 20, txt="Web Vulnerability Scan Report", ln=True, align='C')
         pdf.ln(10)
@@ -743,17 +744,12 @@ def generate_report_in_thread(url, results, crawled_urls, start_time, end_time, 
         pdf.cell(200, 10, txt=f"Date: {datetime.now().strftime('%Y-%m-%d')}", ln=True, align='C')
         pdf.ln(20)
 
-          # Add the logo (adjust x, y, and w as needed)
-          # Update the logo path to use a relative path
-        logo_path = os.path.join(os.path.dirname(__file__), 'static', 'logo.png')
-        if os.path.exists(logo_path):
-            pdf.image(logo_path, x=10, y=8, w=30)
 
-
-        # Format scan duration (remove milliseconds)
+        # Format scan duration (buang milliseconds)
         formatted_duration = str(scan_duration).split('.')[0]
 
         # Add start time, end time, and duration
+        #tambah masa semula, masa tamat dan berapa lama masa diambil
         pdf.set_font("Arial", size=12)
         pdf.cell(200, 10, txt=f"Scan Start Time: {start_time.strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align='C')
         pdf.cell(200, 10, txt=f"Scan End Time: {end_time.strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align='C')
