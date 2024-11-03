@@ -2,170 +2,169 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Vulnerability Scanner</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>VulnerScan</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
     <style>
-        /* Full CSS Styles */
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #121212; /* Dark background */
-            color: #00ff00; /* Bright green text */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+        /* Basic Styling */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background: url('./static/images/background.jpg') center/cover no-repeat; /* Add your background image here */ 
+        }
+        .container { max-width: 1200px; display: flex; align-items: flex-start; justify-content: space-between; }
+
+        /* Header Style */
+        header { width: 100%; position: absolute; top: 0; display: flex; justify-content: flex-end; padding: 20px 30px; }
+        .logo { max-width: 150px; max-height: 150px; position: absolute; top: 0px; left: 10px; }
+        
+        header .signup-btn, header .login-btn {
+            background-color: #f57f17; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 14px; cursor: pointer; margin-right: 15px;
+        }
+        header .signup-btn:hover, header .login-btn:hover { background-color: #ff9d3f; }
+
+        /* Description Section */
+        .description { width: 45%; color: #fff; padding-right: 30px; }
+        .description h2 { font-size: 38px; margin-bottom: 15px; margin-top: 90px; }
+        .description p { font-size: 18px; line-height: 1.6; margin-top: 20px; }
+
+        /* Scanner Form */
+        .scanner-container { width: 50%; }
+        .scanner-header { margin-bottom: 40px; font-size: 3rem; color: #fff; }
+        .wrapper {
+            width: 500px; background: rgba(0, 0, 0, 0.2); border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); color: #fff; border-radius: 10px; padding: 40px 50px;
         }
 
-        .container {
-            text-align: center;
-            border: 2px solid #00ff00;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #1e1e1e;
-            width: 400px;
+        .input-box { width: 100%; height: 50px; margin: 20px 0; position: relative; }
+        .input-box input {
+            width: 100%; height: 100%; background: rgba(255, 255, 255, 0.1); border: none; outline: none;
+            color: #fff; padding: 0 20px; border-radius: 40px; border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+        /* Button */
+        .btn {
+            width: 100%; height: 45px; background: #f57f17; border-radius: 40px; cursor: pointer;
+            font-size: 16px; color: #fff; font-weight: 600; margin-top: 20px; transition: background-color 0.3s ease, color 0.3s ease;
         }
+        .btn:hover { background-color: #ff9d3f; color: #ffffff; opacity: 0.9; }
 
-        input[type="url"] {
-            width: calc(100% - 100px);
-            padding: 10px;
-            margin-right: -4px;
-            border: 2px solid #00ff00;
-            border-radius: 4px 0 0 4px;
-            background-color: #2b2b2b;
-            color: #00ff00;
-        }
+        /* Progress Bar */
+        .progress-bar { width: 100%; height: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; margin-top: 20px; display: none; }
+        .progress { height: 100%; width: 0; background: #f57f17; transition: width 0.3s; }
 
-        button {
-            padding: 10px 20px;
-            border: 2px solid #00ff00;
-            border-radius: 0 4px 4px 0;
-            background-color: #2b2b2b;
-            color: #00ff00;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
+        /* Result Section */
+        .result-section { margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; display: none; }
+        .result-section p { font-size: 18px; color: #fff; margin-bottom: 10px; }
 
-        button:hover {
-            background-color: #00ff00;
-            color: #121212;
+        /* Print Button */
+        .print-btn {
+            display: none; padding: 10px 20px; background: #f57f17; color: #fff; border-radius: 40px; cursor: pointer;
+            font-size: 16px; font-weight: 600; text-decoration: none; text-align: center;
         }
-
-        .result-message {
-            margin-top: 20px;
-            display: none;
-        }
-
-        .result-message p {
-            margin: 10px 0;
-        }
-
-        /* Loading Container Styles */
-        .loading-container {
-            margin-top: 20px;
-            display: none; /* Hidden by default */
-            text-align: center;
-        }
-
-        /* Progress Bar Styles */
-        .progress-bar {
-            width: 100%;
-            background-color: #2b2b2b; /* Match the button background */
-            border-radius: 25px;
-            overflow: hidden;
-            border: 2px solid #00ff00;
-            margin-top: 10px;
-        }
-
-        .progress {
-            width: 0%;
-            height: 20px;
-            background-color: #00ff00;
-            transition: width 0.3s;
-        }
+        .print-btn:hover { background-color: #ff9d3f; color: #ffffff; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>WEB VULNERABILITY SCANNER</h1>
-        <form id="scanForm">
-            <label for="url">Enter URL:</label>
-            <input type="url" id="url" name="url" placeholder="https://example.com" required>
-            <button type="submit">Scan</button>
-        </form>
 
-        <!-- Loading Indicator -->
-        <div id="loadingContainer" class="loading-container">
-            <p>Scanning, please wait...</p>
-            <div class="progress-bar">
-                <div id="progressBar" class="progress"></div>
-            </div>
+<body>
+    <header>
+        <img src="./static/logo.png" alt="VulnerScan Logo" class="logo"> <!-- Adjusted path -->
+        <a href="register.php" class="signup-btn">Sign up</a>
+        <a href="login.php" class="login-btn">Login</a>
+    </header>
+
+    <div class="container">
+        <div class="description">
+            <h2>
+                <span style="color: white;">Website</span><span style="color: #f57f17;">Scanner</span>
+            </h2>            
+            <p>Our website vulnerability scanner is designed to identify security risks in websites. Simply enter your website's URL and let the tool check for any vulnerabilities such as cross-site scripting (XSS), and LFI.</p>
+            <p>Stay ahead of potential threats and protect your site from attacks. Our scanner provides real-time results to help you quickly address any issues found.</p>
         </div>
 
-        <!-- Result Message -->
-        <div id="resultMessage" class="result-message">
-            <p>Scan completed successfully!</p>
-            <button id="printReportButton">Print Report</button>
+        <!-- Scanner Form Section -->
+        <div class="scanner-container">
+            <div class="scanner-header">
+                <h1><span style="color: white;">Vulner</span><span style="color: #f57f17;">Scan</span></h1>
+            </div>
+            
+
+            <div class="wrapper">
+                <form id="scannerForm">
+                    <h1>Enter Website URL</h1>
+                    <div class="input-box">
+                        <input type="url" id="url" name="url" placeholder="https://example.com" required>
+                    </div>
+                    <button type="submit" class="btn">Start Scan</button>
+                </form>
+
+                <!-- Progress Bar and Result Section -->
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="result-section" id="resultSection">
+                    <p id="resultMessage">Scanning in progress, please wait...</p>
+                    <a href="#" id="printReportButton" class="print-btn">Download Report</a>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('scanForm').addEventListener('submit', function(event) {
+        const form = document.getElementById('scannerForm');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+        const resultSection = document.getElementById('resultSection');
+        const resultMessage = document.getElementById('resultMessage');
+        const printReportButton = document.getElementById('printReportButton');
+
+        form.addEventListener('submit', async function(event) {
             event.preventDefault();
 
-            // Show loading indicator
-            const loadingContainer = document.getElementById('loadingContainer');
-            const progressBar = document.getElementById('progressBar');
-            loadingContainer.style.display = 'block';
+            // Show progress bar and reset elements
+            progressBar.style.display = 'block';
+            progress.style.width = '0%';
+            resultSection.style.display = 'block';
+            printReportButton.style.display = 'none';
+            resultMessage.innerText = "Scanning in progress, please wait...";
 
-            // Reset progress bar width
-            progressBar.style.width = '0%';
+            // Retrieve URL from input field
+            const formData = new FormData(form);
 
-            // Simulate progress update during scanning
-            let progress = 0;
-            const updateProgress = setInterval(() => {
-                if (progress < 90) { // Simulate progress (up to 90%)
-                    progress += 10;
-                    progressBar.style.width = progress + '%';
-                }
-            }, 500); // Increase progress every 0.5 seconds
+            try {
+                // Send POST request to initiate scan
+                const response = await fetch('/', {
+                    method: 'POST',
+                    body: formData
+                });
 
-            // Send the scan request
-            fetch('/', {
-                method: 'POST',
-                body: new FormData(event.target)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Stop progress simulation and fill the progress bar
-                clearInterval(updateProgress);
-                progressBar.style.width = '100%';
-
-                if (data.report) {
-                    // Hide loading indicator and show the result
-                    loadingContainer.style.display = 'none';
-                    document.getElementById('resultMessage').style.display = 'block';
-
-                    // Set the report download action
-                    document.getElementById('printReportButton').onclick = () => {
-                        window.location.href = `/Downloads/${data.report}`;
-                    };
+                // Process response from backend
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.report) {
+                        progress.style.width = '100%';
+                        resultMessage.innerText = "Scan complete! Download your report.";
+                        printReportButton.href = `/Downloads/${data.report}`;
+                        printReportButton.style.display = 'inline-block';
+                    } else {
+                        resultMessage.innerText = "Error: No report generated.";
+                    }
                 } else {
-                    alert('Error generating report');
-                    loadingContainer.style.display = 'none';
+                    resultMessage.innerText = "Error: Unable to complete scan.";
                 }
-            })
-            .catch(() => {
-                alert('Error during scanning');
-                loadingContainer.style.display = 'none';
-            });
+            } catch (error) {
+                resultMessage.innerText = `Error: ${error.message}`;
+            }
         });
     </script>
 </body>
+
 </html>

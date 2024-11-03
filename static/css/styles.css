@@ -1,88 +1,198 @@
-/* Global Styles */
+/* Basic Styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
 body {
-    font-family: 'Courier New', Courier, monospace;
-    background-color: #121212; /* Dark background */
-    color: #00ff00; /* Bright green text */
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
+    min-height: 100vh;
+    background: url('./static/images/background.jpg') no-repeat center center; /* Use relative path */
+    background-size: cover;
+    color: #ffffff;
 }
 
-/* Container Styles */
+.logo {
+    max-width: 150px;
+    max-height: 150px;
+    position: absolute;
+    top: 20px; /* Slightly moved down for better visibility */
+    left: 20px;
+}
+
 .container {
-    text-align: center;
-    border: 2px solid #00ff00;
-    padding: 20px;
-    border-radius: 10px;
-    background-color: #1e1e1e; /* Slightly lighter dark background */
-    width: 400px;
+    max-width: 1200px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
 }
 
-/* Header Styles */
-h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
+/* Header Style */
+header {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 30px;
 }
 
-/* Input Field Styles */
-input[type="url"] {
-    width: calc(100% - 100px);
-    padding: 10px;
-    margin-right: -4px;
-    border: 2px solid #00ff00;
-    border-radius: 4px 0 0 4px;
-    background-color: #2b2b2b; /* Slightly lighter than container background */
-    color: #00ff00;
-}
-
-/* Button Styles */
-button {
+header .signup-btn,
+header .login-btn {
+    background-color: #f57f17;
+    color: #fff;
     padding: 10px 20px;
-    border: 2px solid #00ff00;
-    border-radius: 0 4px 4px 0;
-    background-color: #2b2b2b;
-    color: #00ff00;
+    border-radius: 30px;
+    font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    margin-right: 15px;
 }
 
-button:hover {
-    background-color: #00ff00;
-    color: #121212;
+header .signup-btn:hover,
+header .login-btn:hover {
+    background-color: #ff9d3f;
 }
 
-/* Result Message */
-.result-message {
+/* Description Section */
+.description {
+    width: 45%;
+    color: #fff;
+    padding-right: 30px;
+}
+
+.description h2 {
+    font-size: 38px;
+    margin-bottom: 15px;
+    margin-top: 90px;
+}
+
+.description p {
+    font-size: 18px;
+    line-height: 1.6;
+    margin-top: 20px;
+}
+
+/* Logo Color Styling */
+.vulner {
+    color: #ffffff; /* White */
+}
+
+.scan {
+    color: #f57f17; /* Orange */
+}
+
+/* Scanner Form */
+.scanner-container {
+    width: 50%;
+}
+
+.scanner-header {
+    margin-bottom: 40px;
+    font-size: 3rem;
+    color: #fff;
+}
+
+.wrapper {
+    width: 500px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border-radius: 10px;
+    padding: 40px 50px;
+}
+
+.input-box {
+    width: 100%;
+    height: 50px;
+    margin: 20px 0;
+    position: relative;
+}
+
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    outline: none;
+    color: #fff;
+    padding: 0 20px;
+    border-radius: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Button */
+.btn {
+    width: 100%;
+    height: 45px;
+    background: #f57f17;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #fff;
+    font-weight: 600;
+    margin-top: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #ff9d3f;
+    color: #ffffff;
+    opacity: 0.9;
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
     margin-top: 20px;
     display: none;
 }
 
-.result-message p {
-    margin: 10px 0;
+.progress {
+    height: 100%;
+    width: 0;
+    background: #f57f17;
+    transition: width 0.3s;
 }
 
-/* Loading Container Styles */
-.loading-container {
-    margin-top: 20px;
-    display: none; /* Hidden by default */
+/* Result Section */
+.result-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    display: none;
+}
+
+.result-section p {
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+/* Print Button */
+.print-btn {
+    display: none;
+    padding: 10px 20px;
+    background: #f57f17;
+    color: #fff;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
     text-align: center;
 }
 
-/* Progress Bar Styles */
-.progress-bar {
-    width: 100%;
-    background-color: #2b2b2b; /* Match the button background */
-    border-radius: 25px;
-    overflow: hidden;
-    border: 2px solid #00ff00;
-    margin-top: 10px;
-}
-
-.progress {
-    width: 0%;
-    height: 20px;
-    background-color: #00ff00;
-    transition: width 0.3s; /* Smooth transition for progress changes */
+.print-btn:hover {
+    background-color: #ff9d3f;
+    color: #ffffff;
 }
